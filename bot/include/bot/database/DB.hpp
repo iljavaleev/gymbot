@@ -37,20 +37,20 @@ public:
 private:
     DBConnection()
     {
-        connection = pqxx::connection(uri);
-        if (!connection.is_open())
+        connection = std::make_shared<pqxx::connection>(uri);
+        if (!connection->is_open())
             throw std::runtime_error("error open db"); 
     }
 
     void reconnect();
     ~DBConnection()
     { 
-        connection.close(); 
+        connection->close(); 
         delete instance;
     }
     
     static DBConnection* instance;
-    pqxx::connection connection;
+    std::shared_ptr<pqxx::connection> connection{nullptr};
     
     const static std::string uri; 
 

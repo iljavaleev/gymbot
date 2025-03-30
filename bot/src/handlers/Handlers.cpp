@@ -1,6 +1,5 @@
 #include "bot/handlers/Handlers.hpp" 
 #include "bot/database/DB.hpp"   
-#include "bot/database/RedisConn.hpp" 
 #include "bot/keyboards/Keyboards.hpp"  
 #include "bot/utils/Utils.hpp"                        
 #include <functional>                              
@@ -52,10 +51,7 @@ namespace handlers
         {
             return bot.getApi().sendMessage(message->chat->id, "Некорректные данные. Попробуйте снова");
         }
-        auto& redis_connection = RedisConnection::getInstance();
-        auto set_date = std::async(std::launch::deferred, 
-           &RedisConnection::set, std::ref(redis_connection), std::to_string(message->chat->id), date); 
-
+        
         auto& pg_connection = DBConnection::getInstance();
         auto fut_training = std::async(std::launch::async, 
            &DBConnection::get, std::ref(pg_connection), std::ref(date));
@@ -78,7 +74,7 @@ namespace handlers
         {
             std::cerr << e.what() << '\n';
         }
-        set_date.wait();
+
         return Message::Ptr(nullptr); 
     }
  

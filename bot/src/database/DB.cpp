@@ -17,10 +17,10 @@ std::vector<std::string> DBConnection::get(const std::string& date)
     pqxx::result res;
     try
     {
-        if (!connection.is_open())
+        if (!connection->is_open())
             reconnect();
 
-        pqxx::nontransaction non_trans(connection);
+        pqxx::nontransaction non_trans(*connection);
         res = non_trans.exec(query);
     }   
     catch(const std::exception& e)
@@ -47,10 +47,10 @@ void DBConnection::reconnect()
 {  
     try
     {
-        connection = pqxx::connection(uri);
+        connection = std::make_shared<pqxx::connection>(uri);
     }
     catch(const pqxx::broken_connection & e){}
 
-    if (!connection.is_open())
+    if (!connection->is_open())
         throw std::runtime_error("DB reconnection error");
 };

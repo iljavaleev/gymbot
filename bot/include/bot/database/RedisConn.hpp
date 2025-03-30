@@ -18,10 +18,10 @@ public:
         return *instance;
     }
     std::string get(const std::string& user_id);
-    void set(int user_id, const std::string& date);
-    RedisConnection(const DBConnection&) = delete;
+    void set(const std::string& user_id, const std::string& date);
+    RedisConnection(const RedisConnection&) = delete;
     RedisConnection& operator=(const RedisConnection&) = delete;
-   
+    
 private:
     RedisConnection()
     {
@@ -42,11 +42,10 @@ private:
     }
     
     static RedisConnection* instance;
-    sw::redis::Redis connection = Redis("");
-
+    sw::redis::Redis connection = Redis("tcp://127.0.0.1:6379/2?keep_alive=true");
     const static std::string uri;
 };
 
-RedisConnection* RedisConnection::instance = nullptr;
-const std::string RedisConnection::uri = std::getenv("REDIS") ? 
+inline RedisConnection* RedisConnection::instance = nullptr;
+inline const std::string RedisConnection::uri = std::getenv("REDIS") ? 
         std::getenv("REDIS") : "tcp://127.0.0.1:6379/2?keep_alive=true";

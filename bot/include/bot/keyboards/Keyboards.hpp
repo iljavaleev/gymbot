@@ -1,5 +1,5 @@
-#ifndef Keyboards_hpp
-#define Keyboards_hpp
+#ifndef KEYBOARDS_HPP
+#define KEYBOARDS_HPP
 
 #include <tgbot/tgbot.h>
 #include <string>
@@ -10,7 +10,7 @@ using namespace TgBot;
 
 namespace Keyboards
 {
-    InlineKeyboardMarkup::Ptr navigation_kb();   
+    InlineKeyboardMarkup::Ptr navigation_kb(std::string&& prev, std::string&& next);   
 } 
 
 #endif

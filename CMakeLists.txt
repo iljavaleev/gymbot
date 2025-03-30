@@ -11,6 +11,14 @@ set(Boost_USE_MULTITHREADED ON)
 set(HIREDIS /usr/local/include/hiredis/)
 set(REDIS_PLUS_PLUS /usr/local/include/sw/redis++/)
 
+# /usr/local/include/pqxx
+set(PQXX /opt/homebrew/include/pqxx)
+find_library(PQXX_LIB pqxx)
+
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
+
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Boost COMPONENTS system REQUIRED)
@@ -20,7 +28,7 @@ if(NOT TARGET spdlog)
 endif()
 
 find_package(CURL)
-include_directories(/usr/local/include ${OPENSSL_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
+include_directories(/usr/local/include /opt/homebrew/include ${OPENSSL_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
 if (CURL_FOUND)
     include_directories(${CURL_INCLUDE_DIRS})
     add_definitions(-DHAVE_CURL)
@@ -40,4 +48,5 @@ target_include_directories(gymbot PUBLIC ${REDIS_PLUS_PLUS_HEADER})
 
 find_library(REDIS_PLUS_PLUS_LIB redis++)
 
-target_link_libraries(gymbot /usr/local/lib/libTgBot.a ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${REDIS_PLUS_PLUS_LIB} spdlog::spdlog)
+target_link_libraries(gymbot bot /usr/local/lib/libTgBot.a ${PQXX_LIB} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES}
+${Boost_LIBRARIES} ${REDIS_PLUS_PLUS_LIB} spdlog::spdlog)

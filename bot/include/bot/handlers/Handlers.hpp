@@ -1,12 +1,11 @@
-#ifndef Handlers_hpp
-#define Handlers_hpp
+#ifndef HANDLERS_HPP
+#define HANDLERS_HPP
 
 #include <string>
 
 #include "tgbot/types/CallbackQuery.h" 
 #include "tgbot/types/Message.h"
-
-namespace TgBot { class Bot; }
+#include <tgbot/tgbot.h>
 
 using namespace TgBot;
 
@@ -31,7 +30,6 @@ namespace command_handlers
 
 namespace handlers
 {   
-
     class get_training
     {
         const TgBot::Bot& bot;
@@ -40,23 +38,13 @@ namespace handlers
         Message::Ptr operator()(const Message::Ptr& message);
     };
 
-    class next_training
+    class prev_next_training
     {
         const TgBot::Bot& bot;
     public:
-        next_training(const TgBot::Bot& _bot):bot(_bot){}
+        prev_next_training(const TgBot::Bot& _bot):bot(_bot){}
         Message::Ptr operator()(const CallbackQuery::Ptr&);
-    };
-
-    class prev_training
-    {
-        const TgBot::Bot& bot;
-    public:
-        prev_training(const TgBot::Bot& _bot):bot(_bot){}
-        Message::Ptr operator()(const CallbackQuery::Ptr&);
-    };
-    
-   
+    }; 
 };
 
 void startWebhook(TgBot::Bot& bot, std::string& webhookUrl);

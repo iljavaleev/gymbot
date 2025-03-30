@@ -2,12 +2,13 @@
 #include <sstream>
 #include <mutex>
 #include <sstream>
+#include <string>
 
 #include "bot/database/DB.hpp"
 
 using namespace TgBot;
 
-std::string DBConnection::get(const std::string& date)
+std::vector<std::string> DBConnection::get(const std::string& date)
 {
     std::string query = get_query + date;
     pqxx::result res;
@@ -26,14 +27,15 @@ std::string DBConnection::get(const std::string& date)
 
     if (res.empty()) return {};
     std::stringstream result;
+
+    int count = 1;
+    result << res.begin().at(2).as<std::string>() << "\n";
     for (auto i{res.begin()}; i != res.end(); ++i)
     {
-
-        result << i.at(0).as<std::string>() << '\t' << 
-            i.at(1).as<std::string>() << '\t' 
-            << i.at(2).as<std::string>() << '\n';
+        result << count++ << ". " << i.at(0).as<std::string>() << '\t' << 
+            i.at(1).as<int>() << '\n';
     }
-    return result.str();
+    return {result.str(), res.begin().at(3).as<std::string>(), res.begin().at(4).as<std::string>()};
 }   
 
 void DBConnection::reconnect()

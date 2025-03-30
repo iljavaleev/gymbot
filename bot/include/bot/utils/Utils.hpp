@@ -1,5 +1,5 @@
-#ifndef Utils_hpp
-#define Utils_hpp
+#ifndef UTILS_HPP
+#define UTILS_HPP
 #include <string>
 
 std::string parse_date(const std::string&);

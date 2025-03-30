@@ -4,22 +4,23 @@
 
 std::string RedisConnection::get(const std::string& user_id)
 {
-    if (!connection.ping())
+    if (connection.ping() != "PONG")
         reconnect();
-    if (!connection.ping())
+    if (connection.ping() != "PONG")
         throw std::runtime_error("Redis connection failed");
         
     Optional<std::string> val = connection.get(user_id);
-    return val.value("");
+    
+    return val.value_or("");
 }
 
-void RedisConnection::set(int user_id, 
+void RedisConnection::set(const std::string& user_id, 
     const std::string& date)
 {
-    if (!connection.ping()) reconnect();
-    if (!connection.ping())
+    if (connection.ping() != "PONG") reconnect();
+    if (connection.ping() != "PONG")
         throw std::runtime_error("Redis connection failed");
-    redis.set(user_id, date);
+        connection.set(user_id, date);
 }
    
 void RedisConnection::reconnect()

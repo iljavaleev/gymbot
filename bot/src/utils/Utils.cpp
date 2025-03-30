@@ -32,6 +32,6 @@ std::string parse_date(const std::string& date)
         return "";
 
     std::stringstream res;
-    res << dmy.at(2) << "-" << dmy.at(1) << "-" << dmy.at(0);
+    res << "'" << "20" << dmy.at(2) << "-" << dmy.at(1) << "-" << dmy.at(0) << "'";
     return res.str();
 }

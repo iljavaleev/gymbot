@@ -1,8 +1,9 @@
 #include "bot/handlers/Handlers.hpp" 
 #include "bot/database/DB.hpp"   
-#include "bot/database/RedisConn.hpp" 
 #include "bot/keyboards/Keyboards.hpp"  
-#include "bot/utils/Utils.hpp"                        
+#include "bot/utils/Utils.hpp"
+
+#include "spdlog/spdlog.h"
 #include <functional>                              
 #include <memory>                                   
 #include <string>                                                                     
@@ -26,13 +27,36 @@ namespace command_handlers
 {
     Message::Ptr start_command::operator()(const Message::Ptr& message)
     {
-        return bot.getApi().sendMessage(message->chat->id, "Введите дату \
-            тренировки в формате дд.мм.гг. Например 09.03.21");
+        try
+        {
+            return bot.getApi().sendMessage(
+                message->chat->id, 
+                "Введите дату тренировки в формате дд.мм.гг. Например 20.03.20");
+        }
+        catch(const std::exception& e)
+        {
+            spdlog::error("error: {}", e.what());
+            
+        }  
+        return Message::Ptr(nullptr);
     }
 
     Message::Ptr help_command::operator()(const Message::Ptr& message)
     {
-        return bot.getApi().sendMessage(message->chat->id, "Вы можете получить программу тренировки на указанную вами \дату. Бот ожидает сообщение в формате дд.мм.гг. Например 09.03.21. Дату нужно взять из коричневого блокнота. \Если вы недавно обращались к боту, то возможно он запомнил последнюю дату вашего поиска и сможет найти данные \на предыдущий или следующий тренировочный день. Но память у него короткая. Нажимайте на кнопки след/пред");
+        try
+        {
+            return bot.getApi().sendMessage(
+                message->chat->id, 
+                "Вы можете получить программу тренировки на указанную вами " 
+                "дату. Бот ожидает сообщение в формате дд.мм.гг. Например 20.03.20" 
+                "Дата первой возможной теренировки 30.09.2019, последней - 21.05.21");
+        }
+        catch(const std::exception& e)
+        {
+            spdlog::error("error: {}", e.what());
+   
+        }
+        return Message::Ptr(nullptr);
     }
 };
 
@@ -49,55 +73,126 @@ namespace handlers
         std::string date = parse_date(message->text);
         if (date.empty())
         {
-            return bot.getApi().sendMessage(message->chat->id, "Некорректные данные. Попробуйте снова");
+            try
+            {
+                return bot.getApi().sendMessage(
+                    message->chat->id, 
+                    "Некорректные данные. Попробуйте снова");
+            }
+            catch(const std::exception& e)
+            {
+                spdlog::error("error: {}", e.what());
+                return Message::Ptr(nullptr);
+            }  
         }
-        auto& redis_connection = RedisConnection::getInstance();
-        auto set_date = std::async(std::launch::deferred, 
-           &RedisConnection::set, std::ref(redis_connection), message->chat->id, date); 
-
-        auto& pg_connection = DBConnection::getInstance();
-        auto fut_training = std::async(std::launch::async, 
-           &DBConnection::get, std::ref(pg_connection), std::ref(date));
         
+        std::vector<std::string> training;
         try
         {
-            std::string training = fut_training.get();
+            auto& pg_connection = DBConnection::getInstance();
+            auto fut_training = std::async(std::launch::async, 
+                &DBConnection::get, std::ref(pg_connection), std::ref(date));
+            training = fut_training.get();
+        }
+        catch(const std::exception& e)
+        {
+            spdlog::error("error: {}", e.what());
+            try
+            {
+                return bot.getApi().sendMessage(
+                    message->chat->id, 
+                    "Похоже, у нас небольшие неполадки. Попробуйте позже");
+            }
+            catch(const std::exception& e)
+            {
+                spdlog::error("error: {}", e.what());
+            }  
+            return Message::Ptr(nullptr);
+        }  
+
+        try
+        {
+            std::string mess = training.empty() ? \
+            "Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.2019, последней - 21.05.21" :  training.at(0);
+            
             return bot.getApi().sendMessage(message->chat->id, 
-                std::move(training), nullptr, nullptr, Keyboards::navigation_kb());
+                std::move(mess), 
+                nullptr, 
+                nullptr, 
+                training.empty() ? nullptr : Keyboards::navigation_kb(
+                    std::move(training.at(1)),
+                    std::move(training.at(2))
+                ));
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
         }
-        set_date.wait();
+
         return Message::Ptr(nullptr); 
     }
  
-    Message::Ptr next_training::operator()(const CallbackQuery::Ptr& query)
+    Message::Ptr prev_next_training::operator()(const CallbackQuery::Ptr& query)
     {
-        
+        std::vector<std::string> training;
+        try
+        {
+            auto& pg_connection = DBConnection::getInstance();
+            auto fut_training = std::async(std::launch::async, 
+                &DBConnection::get, std::ref(pg_connection), std::ref(query->data));
+            training = fut_training.get();
+        }
+        catch(const std::exception& e)
+        {
+            spdlog::error("error: {}", e.what());
+            try
+            {
+                return bot.getApi().sendMessage(
+                    query->message->chat->id, 
+                    "Похоже, у нас небольшие неполадки. Попробуйте позже");
+            }
+            catch(const std::exception& e)
+            {
+                spdlog::error("error: {}", e.what());
+            }  
+            return Message::Ptr(nullptr);
+        }  
+       
+
+        try
+        {
+            std::string mess = training.empty() ? "Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.2019, последней - 21.05.21" :  training.at(0);
+            
+            return bot.getApi().sendMessage(query->message->chat->id, 
+                std::move(mess), 
+                nullptr, 
+                nullptr, 
+                training.empty() ? nullptr : Keyboards::navigation_kb(
+                    std::move(training.at(1)),
+                    std::move(training.at(2))
+                ));
+        }
+        catch(const std::exception& e)
+        {
+            spdlog::error("error: {}", e.what());
+        }
+
         return Message::Ptr(nullptr); 
     }
-
-    Message::Ptr prev_training::operator()(const CallbackQuery::Ptr& query)
-    {
-        
-        return Message::Ptr(nullptr); 
-    };
 
 };
 
 void startWebhook(TgBot::Bot& bot, std::string& webhookUrl)
 {
     try {
-        printf("Bot username: %s\n", bot.getApi().getMe()->username.c_str());
+        spdlog::info("Bot username: {}", bot.getApi().getMe()->username);
         TgWebhookTcpServer webhookServer(8080, bot);
-        printf("Server starting\n");
+        spdlog::info("Server starting");
         bot.getApi().setWebhook(webhookUrl);
         webhookServer.start();
     } 
     catch (std::exception& e) 
     {
-        printf("error: %s\n", e.what());
+        spdlog::error("error: {}", e.what());
     }
 }

@@ -32,6 +32,23 @@ std::string parse_date(const std::string& date)
         return "";
 
     std::stringstream res;
-    res << "'" << "20" << dmy.at(2) << "-" << dmy.at(1) << "-" << dmy.at(0) << "'";
+    res  << "20" << dmy.at(2) << "-" << dmy.at(1) << "-" << dmy.at(0);
     return res.str();
+}
+
+std::vector<BotCommand::Ptr> create_commands()
+{
+    std::vector<BotCommand::Ptr> commands;
+
+    BotCommand::Ptr start_command{new BotCommand};
+    start_command->command = "start";
+    start_command->description = "запуск бота";
+    commands.push_back(start_command);
+
+    BotCommand::Ptr cancel_command{new BotCommand};
+    cancel_command->command = "help";
+    cancel_command->description = "справка";
+    commands.push_back(cancel_command);
+
+    return commands;
 }

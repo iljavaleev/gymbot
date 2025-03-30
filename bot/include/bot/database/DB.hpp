@@ -8,7 +8,7 @@
 #include <memory>
 
 #include <tgbot/tgbot.h>
-
+#include "spdlog/spdlog.h"
 
 class DBConnection 
 {
@@ -16,7 +16,18 @@ public:
     static DBConnection& getInstance()
     {
         if (!instance)
-            instance = new DBConnection();
+        {
+            try
+            {
+                instance = new DBConnection();
+            }
+            catch(const std::exception& e)
+            {
+                spdlog::error("error: {}", e.what());
+                throw;
+            }
+        }
+            
         return *instance;
     }
     std::vector<std::string> get(const std::string&);
@@ -26,16 +37,9 @@ public:
 private:
     DBConnection()
     {
-        try
-        {
-            connection = pqxx::connection(uri);
-            if (!connection.is_open())
-                throw std::runtime_error("error open db"); 
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
+        connection = pqxx::connection(uri);
+        if (!connection.is_open())
+            throw std::runtime_error("error open db"); 
     }
 
     void reconnect();
@@ -50,7 +54,7 @@ private:
     
     const static std::string uri; 
 
-    static constexpr char get_query[] = "select exercise, reps, TO_CHAR(date::DATE,'dd/mm/yyyy'), next, prev from workout where date=";
+    static constexpr char get_query[] = "select exercise, reps, TO_CHAR(date::DATE,'dd/mm/yyyy'), prev, next from workout where date=";
 };
 
 inline DBConnection* DBConnection::instance = nullptr;

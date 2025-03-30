@@ -45,7 +45,6 @@ private:
     void reconnect();
     ~DBConnection()
     { 
-        connection->close(); 
         delete instance;
     }
     

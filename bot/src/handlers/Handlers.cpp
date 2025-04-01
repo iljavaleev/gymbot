@@ -2,23 +2,22 @@
 #include "bot/database/DB.hpp"   
 #include "bot/keyboards/Keyboards.hpp"  
 #include "bot/utils/Utils.hpp"
-
-#include "spdlog/spdlog.h"
-#include <functional>                              
+                           
 #include <memory>                                   
 #include <string>                                                                     
 #include <vector> 
 #include <future> 
 #include <exception>      
                           
-
 #include "tgbot/Api.h"                              
 #include "tgbot/Bot.h"                              
 #include "tgbot/net/TgWebhookTcpServer.h"           
 #include "tgbot/tools/StringTools.h"                
 #include "tgbot/types/Chat.h"                       
 #include "tgbot/types/InlineKeyboardMarkup.h"       
-#include "tgbot/types/User.h"                       
+#include "tgbot/types/User.h"   
+#include "spdlog/spdlog.h"
+
 
 using namespace TgBot;
 
@@ -31,7 +30,7 @@ namespace command_handlers
         {
             return bot.getApi().sendMessage(
                 message->chat->id, 
-                "Введите дату тренировки в формате дд.мм.гг. Например 20.03.20");
+                "<i>Введите дату тренировки в формате дд.мм.гг. Например 20.03.20</i>");
         }
         catch(const std::exception& e)
         {
@@ -47,9 +46,9 @@ namespace command_handlers
         {
             return bot.getApi().sendMessage(
                 message->chat->id, 
-                "Вы можете получить программу тренировки на указанную вами " 
-                "дату. Бот ожидает сообщение в формате дд.мм.гг. Например 20.03.20" 
-                "Дата первой возможной теренировки 30.09.2019, последней - 21.05.21");
+                "<i>Вы можете получить программу тренировки на указанную вами " 
+                "дату из блокнота. Бот ожидает сообщение в формате дд.мм.гг. Например 20.03.20" 
+                "Дата первой возможной теренировки - 30.09.2019, последней - 21.05.21</i>");
         }
         catch(const std::exception& e)
         {
@@ -77,7 +76,7 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     message->chat->id, 
-                    "Некорректные данные. Попробуйте снова");
+                    "<i>Некорректные данные. Попробуйте снова</i>");
             }
             catch(const std::exception& e)
             {
@@ -101,7 +100,7 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     message->chat->id, 
-                    "Похоже, у нас небольшие неполадки. Попробуйте позже");
+                    "<i>Похоже, у нас небольшие неполадки. Попробуйте позже</i>");
             }
             catch(const std::exception& e)
             {
@@ -113,7 +112,7 @@ namespace handlers
         try
         {
             std::string mess = training.empty() ? \
-            "Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.2019, последней - 21.05.21" :  training.at(0);
+            "<i>Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.2019, последней - 21.05.21</i>" :  training.at(0);
             
             return bot.getApi().sendMessage(message->chat->id, 
                 std::move(mess), 
@@ -149,7 +148,7 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     query->message->chat->id, 
-                    "Похоже, у нас небольшие неполадки. Попробуйте позже");
+                    "<i>Похоже, у нас небольшие неполадки. Попробуйте позже</i>");
             }
             catch(const std::exception& e)
             {
@@ -161,7 +160,7 @@ namespace handlers
 
         try
         {
-            std::string mess = training.empty() ? "Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.2019, последней - 21.05.21" :  training.at(0);
+            std::string mess = training.empty() ? "<i>Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.2019, последней - 21.05.21</i>" :  training.at(0);
             
             return bot.getApi().sendMessage(query->message->chat->id, 
                 std::move(mess), 

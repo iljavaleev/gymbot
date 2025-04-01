@@ -15,5 +15,5 @@ build/
 data/
 .env
 todo.txt
-/db_setup/export.sh
-/db_setup/table.csv
+/setup/export.sh
+/setup/table.csv

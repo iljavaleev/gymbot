@@ -14,9 +14,9 @@ int main()
 {
     spdlog::set_level(spdlog::level::err);
     std::string bot_token = std::string(std::getenv("BOT_TOKEN"));
-    // std::string base_webhook_url = std::string(std::getenv("BASE_WEBHOOK_URL"));
-    // std::string TEL = "https://api.telegram.org/bot" + bot_token + "/setWebhook?url=";
-    // std::string WEBHOOK_URL = base_webhook_url + "/" + bot_token;    
+    std::string base_webhook_url = std::string(std::getenv("BASE_WEBHOOK_URL"));
+    std::string TEL = "https://api.telegram.org/bot" + bot_token + "/setWebhook?url=";
+    std::string WEBHOOK_URL = base_webhook_url + "/" + bot_token;    
     TgBot::Bot bot(bot_token);
     std::vector<BotCommand::Ptr> commands = create_commands();
     bot.getApi().setMyCommands(commands);
@@ -26,17 +26,7 @@ int main()
     bot.getEvents().onAnyMessage(handlers::get_training(bot));
     bot.getEvents().onCallbackQuery(handlers::prev_next_training(bot));
     
-    try {
-        spdlog::info("Bot username: {}\n", bot.getApi().getMe()->username);
-        TgBot::TgLongPoll longPoll(bot);
-        while (true) {
-            printf("Long poll started\n");
-            longPoll.start();
-        }
-    } catch (TgBot::TgException& e) {
-        printf("error: %s\n", e.what());
-    }
-    // signal(SIGINT, [](int s) { printf("SIGINT got\n"); exit(0);});
-    // startWebhook(bot, WEBHOOK_URL);
+    signal(SIGINT, [](int s) { printf("SIGINT got\n"); exit(0);});
+    startWebhook(bot, WEBHOOK_URL);
     return 0;
 }

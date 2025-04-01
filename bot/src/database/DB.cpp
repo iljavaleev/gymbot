@@ -3,8 +3,8 @@
 #include <mutex>
 #include <sstream>
 #include <string>
-#include "spdlog/spdlog.h"
 
+#include "spdlog/spdlog.h"
 #include "bot/database/DB.hpp"
 
 using namespace TgBot;
@@ -35,11 +35,11 @@ std::vector<std::string> DBConnection::get(const std::string& date)
     std::stringstream result;
 
     int count = 1;
-    result << res.begin().at(2).as<std::string>() << "\n";
+    result << "<b>" << res.begin().at(2).as<std::string>() << "</b>" << "\n";
     for (auto i{res.begin()}; i != res.end(); ++i)
     {
         result << count++ << ". " << i.at(0).as<std::string>() << '\t' << 
-            (i.at(1).is_null() ? "" : i.at(1).as<std::string>()) << '\n';
+            (i.at(1).is_null() ? "" : ("<b>/" + i.at(1).as<std::string>() + "</b>")) << '\n';
     }
     return {result.str(), res.begin().at(3).as<std::string>(), res.begin().at(4).as<std::string>()};
 }   

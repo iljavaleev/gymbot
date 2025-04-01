@@ -41,7 +41,11 @@ std::vector<std::string> DBConnection::get(const std::string& date)
         result << count++ << ". " << i.at(0).as<std::string>() << '\t' << 
             (i.at(1).is_null() ? "" : ("<b>/" + i.at(1).as<std::string>() + "</b>")) << '\n';
     }
-    return {result.str(), res.begin().at(3).as<std::string>(), res.begin().at(4).as<std::string>()};
+    return {
+        result.str(), 
+        res.at(3).is_null() ? "" ? res.begin().at(3).as<std::string>(),
+        res.at(4).is_null() ? "" ? res.begin().at(4).as<std::string>()
+    };
 }   
 void DBConnection::reconnect()
 {  

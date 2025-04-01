@@ -30,7 +30,11 @@ namespace command_handlers
         {
             return bot.getApi().sendMessage(
                 message->chat->id, 
-                "<i>Введите дату тренировки в формате дд.мм.гг. Например 20.03.20</i>");
+                "<i>Введите дату тренировки в формате дд.мм.гг. Например 20.03.20</i>",
+                nullptr,
+                nullptr,
+                nullptr,
+                "HTML");
         }
         catch(const std::exception& e)
         {
@@ -48,7 +52,11 @@ namespace command_handlers
                 message->chat->id, 
                 "<i>Вы можете получить программу тренировки на указанную вами " 
                 "дату из блокнота. Бот ожидает сообщение в формате дд.мм.гг. Например 20.03.20" 
-                "Дата первой возможной теренировки - 30.09.2019, последней - 21.05.21</i>");
+                "Дата первой возможной теренировки - 30.09.2019, последней - 21.05.21</i>",
+                nullptr,
+                nullptr,
+                nullptr,
+                "HTML");
         }
         catch(const std::exception& e)
         {
@@ -76,7 +84,11 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     message->chat->id, 
-                    "<i>Некорректные данные. Попробуйте снова</i>");
+                    "<i>Некорректные данные. Попробуйте снова</i>",
+                    nullptr,
+                    nullptr,
+                    nullptr,
+                    "HTML");
             }
             catch(const std::exception& e)
             {
@@ -100,7 +112,12 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     message->chat->id, 
-                    "<i>Похоже, у нас небольшие неполадки. Попробуйте позже</i>");
+                    "<i>Похоже, у нас небольшие неполадки. Попробуйте позже</i>",
+                    nullptr,
+                    nullptr,
+                    nullptr,
+                    "HTML"
+                );
             }
             catch(const std::exception& e)
             {
@@ -121,7 +138,9 @@ namespace handlers
                 training.empty() ? nullptr : Keyboards::navigation_kb(
                     std::move(training.at(1)),
                     std::move(training.at(2))
-                ));
+                ),
+                "HTML"
+            );
         }
         catch(const std::exception& e)
         {
@@ -148,7 +167,12 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     query->message->chat->id, 
-                    "<i>Похоже, у нас небольшие неполадки. Попробуйте позже</i>");
+                    "<i>Похоже, у нас небольшие неполадки. Попробуйте позже</i>",
+                    nullptr,
+                    nullptr,
+                    nullptr,
+                    "HTML"
+                );
             }
             catch(const std::exception& e)
             {
@@ -169,7 +193,9 @@ namespace handlers
                 training.empty() ? nullptr : Keyboards::navigation_kb(
                     std::move(training.at(1)),
                     std::move(training.at(2))
-                ));
+                ),
+                "HTML"
+            );
         }
         catch(const std::exception& e)
         {

@@ -30,7 +30,7 @@ namespace command_handlers
         {
             return bot.getApi().sendMessage(
                 message->chat->id, 
-                "<i>Введите дату тренировки в формате дд.мм.гг. Например 20.03.20</i>",
+                "<b>Введите дату тренировки в формате дд.мм.гг. Например 20.03.20</b>",
                 nullptr,
                 nullptr,
                 nullptr,
@@ -50,9 +50,9 @@ namespace command_handlers
         {
             return bot.getApi().sendMessage(
                 message->chat->id, 
-                "<i>Вы можете получить программу тренировки на указанную вами " 
-                "дату из блокнота. Бот ожидает сообщение в формате дд.мм.гг. Например 20.03.20" 
-                "Дата первой возможной теренировки - 30.09.19, последней - 21.05.21</i>",
+                "<b>Вы можете получить программу тренировки на указанную вами " 
+                "дату из блокнота. Бот ожидает сообщение в формате дд.мм.гг. Например 20.03.20. " 
+                "Дата первой возможной теренировки - 30.09.19, последней - 21.05.21</b>",
                 nullptr,
                 nullptr,
                 nullptr,
@@ -84,7 +84,7 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     message->chat->id, 
-                    "<i>Некорректные данные. Попробуйте снова</i>",
+                    "<b>Некорректные данные. Попробуйте снова</b>",
                     nullptr,
                     nullptr,
                     nullptr,
@@ -112,7 +112,7 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     message->chat->id, 
-                    "<i>Похоже, у нас небольшие неполадки. Попробуйте позже</i>",
+                    "<b>Похоже, у нас небольшие неполадки. Попробуйте позже</b>",
                     nullptr,
                     nullptr,
                     nullptr,
@@ -129,7 +129,7 @@ namespace handlers
         try
         {
             std::string mess = training.empty() ? \
-            "<i>Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.19, последней - 21.05.21</i>" :  training.at(0);
+            "<b>Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.19, последней - 21.05.21</b>" :  training.at(0);
             
             return bot.getApi().sendMessage(message->chat->id, 
                 std::move(mess), 
@@ -167,7 +167,7 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     query->message->chat->id, 
-                    "<i>Похоже, у нас небольшие неполадки. Попробуйте позже</i>",
+                    "<b>Похоже, у нас небольшие неполадки. Попробуйте позже</b>",
                     nullptr,
                     nullptr,
                     nullptr,
@@ -184,7 +184,7 @@ namespace handlers
 
         try
         {
-            std::string mess = training.empty() ? "<i>Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.19, последней - 21.05.21</i>" :  training.at(0);
+            std::string mess = training.empty() ? "<b>Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.19, последней - 21.05.21</b>" :  training.at(0);
             
             return bot.getApi().sendMessage(query->message->chat->id, 
                 std::move(mess), 

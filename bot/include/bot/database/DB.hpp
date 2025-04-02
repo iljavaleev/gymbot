@@ -53,7 +53,7 @@ private:
     
     const static std::string uri; 
 
-    static constexpr char get_query[] = "select exercise, reps, TO_CHAR(date::DATE,'dd/mm/yyyy'), prev, next from workout where date=";
+    static constexpr char get_query[] = "select exercise, reps, TO_CHAR(date::DATE,'dd.mm.yyyy'), prev, next, date from workout where date=";
 };
 
 inline DBConnection* DBConnection::instance = nullptr;

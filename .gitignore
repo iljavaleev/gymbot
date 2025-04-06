@@ -17,3 +17,4 @@ data/
 todo.txt
 /setup/export.sh
 /setup/table.csv
+/logs

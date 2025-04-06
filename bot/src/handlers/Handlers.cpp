@@ -18,14 +18,15 @@
 #include "tgbot/types/User.h"   
 #include "spdlog/spdlog.h"
 
-
 using namespace TgBot;
+extern const std::shared_ptr<spdlog::logger> logger;
 
 
 namespace command_handlers
 {
     Message::Ptr start_command::operator()(const Message::Ptr& message)
     {
+        logger->set_level(spdlog::level::err);
         try
         {
             return bot.getApi().sendMessage(
@@ -38,7 +39,7 @@ namespace command_handlers
         }
         catch(const std::exception& e)
         {
-            spdlog::error("error: {}", e.what());
+            logger->error("error: {}", e.what());
             
         }  
         return Message::Ptr(nullptr);
@@ -46,6 +47,7 @@ namespace command_handlers
 
     Message::Ptr help_command::operator()(const Message::Ptr& message)
     {
+        logger->set_level(spdlog::level::err);
         try
         {
             return bot.getApi().sendMessage(
@@ -60,7 +62,7 @@ namespace command_handlers
         }
         catch(const std::exception& e)
         {
-            spdlog::error("error: {}", e.what());
+            logger->error("error: {}", e.what());
    
         }
         return Message::Ptr(nullptr);
@@ -72,6 +74,7 @@ namespace handlers
 {
     Message::Ptr get_training::operator()(const Message::Ptr& message)
     {
+        logger->set_level(spdlog::level::err);
         if (StringTools::startsWith(message->text, "/start") || 
             StringTools::startsWith(message->text, "/help")) 
         {
@@ -92,7 +95,7 @@ namespace handlers
             }
             catch(const std::exception& e)
             {
-                spdlog::error("error: {}", e.what());
+                logger->error("error: {}", e.what());
                 return Message::Ptr(nullptr);
             }  
         }
@@ -107,7 +110,7 @@ namespace handlers
         }
         catch(const std::exception& e)
         {
-            spdlog::error("error: {}", e.what());
+            logger->error("error: {}", e.what());
             try
             {
                 return bot.getApi().sendMessage(
@@ -121,7 +124,7 @@ namespace handlers
             }
             catch(const std::exception& e)
             {
-                spdlog::error("error: {}", e.what());
+                logger->error("error: {}", e.what());
             }  
             return Message::Ptr(nullptr);
         }  
@@ -144,7 +147,7 @@ namespace handlers
         }
         catch(const std::exception& e)
         {
-            std::cerr << e.what() << '\n';
+            logger->error("error: {}", e.what());
         }
 
         return Message::Ptr(nullptr); 
@@ -152,6 +155,7 @@ namespace handlers
  
     Message::Ptr prev_next_training::operator()(const CallbackQuery::Ptr& query)
     {
+        logger->set_level(spdlog::level::err);
         std::vector<std::string> training;
         try
         {
@@ -162,7 +166,7 @@ namespace handlers
         }
         catch(const std::exception& e)
         {
-            spdlog::error("error: {}", e.what());
+            logger->error("error: {}", e.what());
             try
             {
                 return bot.getApi().sendMessage(
@@ -176,7 +180,7 @@ namespace handlers
             }
             catch(const std::exception& e)
             {
-                spdlog::error("error: {}", e.what());
+                logger->error("error: {}", e.what());
             }  
             return Message::Ptr(nullptr);
         }  
@@ -199,7 +203,7 @@ namespace handlers
         }
         catch(const std::exception& e)
         {
-            spdlog::error("error: {}", e.what());
+            logger->error("error: {}", e.what());
         }
 
         return Message::Ptr(nullptr); 
@@ -209,6 +213,7 @@ namespace handlers
 
 void startWebhook(TgBot::Bot& bot, std::string& webhookUrl)
 {
+    logger->set_level(spdlog::level::err);
     try {
         spdlog::info("Bot username: {}", bot.getApi().getMe()->username);
         TgWebhookTcpServer webhookServer(8080, bot);
@@ -218,6 +223,6 @@ void startWebhook(TgBot::Bot& bot, std::string& webhookUrl)
     } 
     catch (std::exception& e) 
     {
-        spdlog::error("error: {}", e.what());
+        logger->error("error: {}", e.what());
     }
 }

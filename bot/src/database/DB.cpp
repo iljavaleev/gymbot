@@ -7,11 +7,14 @@
 #include "spdlog/spdlog.h"
 #include "bot/database/DB.hpp"
 
+
 using namespace TgBot;
+
+extern const std::shared_ptr<spdlog::logger> logger;
 
 std::vector<std::string> DBConnection::get(const std::string& date)
 {
-    
+    logger->set_level(spdlog::level::err);
     std::string query = get_query + ("'" + date + "'");
     spdlog::info(query);
     pqxx::result res;
@@ -25,7 +28,7 @@ std::vector<std::string> DBConnection::get(const std::string& date)
     }   
     catch(const std::exception& e)
     {
-        spdlog::error(e.what());
+        logger->error("error: {}", e.what());
     }
 
     if (res.empty())  

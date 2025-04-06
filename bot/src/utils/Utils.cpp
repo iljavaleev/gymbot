@@ -9,6 +9,7 @@
 
 using namespace TgBot;
 
+
 std::string parse_date(const std::string& date)
 {
     std::regex self_regex("^[0-9.]{8}$",

@@ -8,7 +8,7 @@
 #include <memory>
 
 #include <tgbot/tgbot.h>
-#include "spdlog/spdlog.h"
+
 
 class DBConnection 
 {
@@ -23,7 +23,6 @@ public:
             }
             catch(const std::exception& e)
             {
-                spdlog::error("error: {}", e.what());
                 throw;
             }
         }

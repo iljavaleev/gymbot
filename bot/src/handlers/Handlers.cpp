@@ -1,21 +1,15 @@
 #include "bot/handlers/Handlers.hpp" 
-#include "bot/database/DB.hpp"   
+#include "bot/database/DB.hpp"  
 #include "bot/keyboards/Keyboards.hpp"  
 #include "bot/utils/Utils.hpp"
+#include "bot/Vocabular.hpp"
                            
 #include <memory>                                   
 #include <string>                                                                     
 #include <vector> 
 #include <future> 
 #include <exception>      
-                          
-#include "tgbot/Api.h"                              
-#include "tgbot/Bot.h"                              
-#include "tgbot/net/TgWebhookTcpServer.h"           
-#include "tgbot/tools/StringTools.h"                
-#include "tgbot/types/Chat.h"                       
-#include "tgbot/types/InlineKeyboardMarkup.h"       
-#include "tgbot/types/User.h"   
+                            
 #include "spdlog/spdlog.h"
 
 using namespace TgBot;
@@ -31,10 +25,10 @@ namespace command_handlers
         {
             return bot.getApi().sendMessage(
                 message->chat->id, 
-                "<b>Введите дату тренировки в формате дд.мм.гг. Например 20.03.20</b>",
+                std::string(choose_program_string),
                 nullptr,
                 nullptr,
-                nullptr,
+                Keyboards::choose_program_kb(),
                 "HTML");
         }
         catch(const std::exception& e)
@@ -45,6 +39,7 @@ namespace command_handlers
         return Message::Ptr(nullptr);
     }
 
+
     Message::Ptr help_command::operator()(const Message::Ptr& message)
     {
         logger->set_level(spdlog::level::err);
@@ -52,9 +47,7 @@ namespace command_handlers
         {
             return bot.getApi().sendMessage(
                 message->chat->id, 
-                "<b>Вы можете получить программу тренировки на указанную вами " 
-                "дату из блокнота. Бот ожидает сообщение в формате дд.мм.гг. Например 20.03.20. " 
-                "Дата первой возможной теренировки - 30.09.19, последней - 21.05.21</b>",
+                std::string(help_string),
                 nullptr,
                 nullptr,
                 nullptr,
@@ -72,6 +65,35 @@ namespace command_handlers
 
 namespace handlers
 {
+    Message::Ptr inform_handler::operator()(const CallbackQuery::Ptr& query)
+    {
+        logger->set_level(spdlog::level::err);
+        if (!(query->data == "M" || query->data == "W"))
+        {
+            return Message::Ptr(nullptr);
+        }
+            
+        try
+        {
+            storage->set(query->message->chat->id, 
+                std::move(query->data));
+            return bot.getApi().sendMessage(
+                query->message->chat->id, 
+                std::string(choose_date_string),
+                nullptr,
+                nullptr,
+                nullptr,
+                "HTML");
+        }
+        catch(const std::exception& e)
+        {
+            logger->error("error: {}", e.what());
+            
+        }  
+        return Message::Ptr(nullptr);
+    }
+
+
     Message::Ptr get_training::operator()(const Message::Ptr& message)
     {
         logger->set_level(spdlog::level::err);
@@ -87,7 +109,7 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     message->chat->id, 
-                    "<b>Некорректные данные. Попробуйте снова</b>",
+                    std::string(error_string),
                     nullptr,
                     nullptr,
                     nullptr,
@@ -101,11 +123,24 @@ namespace handlers
         }
         
         std::vector<std::string> training;
+        auto program = storage->get(message->chat->id);
         try
         {
+            if (!program)
+            {
+                return bot.getApi().sendMessage(
+                    message->chat->id, 
+                    std::string(choose_program_string),
+                    nullptr,
+                    nullptr,
+                    Keyboards::choose_program_kb(),
+                    "HTML");
+            }
             auto& pg_connection = DBConnection::getInstance();
             auto fut_training = std::async(std::launch::async, 
-                &DBConnection::get, std::ref(pg_connection), std::ref(date));
+                &DBConnection::get, std::ref(pg_connection), 
+                std::ref(date), 
+                *program);
             training = fut_training.get();
         }
         catch(const std::exception& e)
@@ -115,7 +150,7 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     message->chat->id, 
-                    "<b>Похоже, у нас небольшие неполадки. Попробуйте позже</b>",
+                    std::string(problems_string),
                     nullptr,
                     nullptr,
                     nullptr,
@@ -132,7 +167,7 @@ namespace handlers
         try
         {
             std::string mess = training.empty() ? \
-            "<b>Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.19, последней - 21.05.21</b>" :  training.at(0);
+            std::string(error_date_string) : training.at(0);
             
             return bot.getApi().sendMessage(message->chat->id, 
                 std::move(mess), 
@@ -140,7 +175,8 @@ namespace handlers
                 nullptr, 
                 training.empty() ? nullptr : Keyboards::navigation_kb(
                     std::move(training.at(1)),
-                    std::move(training.at(2))
+                    std::move(training.at(2)),
+                    std::move(*program)
                 ),
                 "HTML"
             );
@@ -155,13 +191,19 @@ namespace handlers
  
     Message::Ptr prev_next_training::operator()(const CallbackQuery::Ptr& query)
     {
+        auto data = StringTools::split(query->data, ',');
+        if (data.size() != 2)
+        {
+            return Message::Ptr(nullptr);
+        }
         logger->set_level(spdlog::level::err);
         std::vector<std::string> training;
         try
         {
             auto& pg_connection = DBConnection::getInstance();
             auto fut_training = std::async(std::launch::async, 
-                &DBConnection::get, std::ref(pg_connection), std::ref(query->data));
+                &DBConnection::get, std::ref(pg_connection), 
+                data.at(0), data.at(1));
             training = fut_training.get();
         }
         catch(const std::exception& e)
@@ -171,7 +213,7 @@ namespace handlers
             {
                 return bot.getApi().sendMessage(
                     query->message->chat->id, 
-                    "<b>Похоже, у нас небольшие неполадки. Попробуйте позже</b>",
+                    std::string(problems_string),
                     nullptr,
                     nullptr,
                     nullptr,
@@ -188,7 +230,8 @@ namespace handlers
 
         try
         {
-            std::string mess = training.empty() ? "<b>Неверно задана дата. Формат дд.мм.гг. Дата первой возможной теренировки 30.09.19, последней - 21.05.21</b>" :  training.at(0);
+            std::string mess = training.empty() ? \
+            std::string(error_date_string) : training.at(0);
             
             return bot.getApi().sendMessage(query->message->chat->id, 
                 std::move(mess), 
@@ -196,7 +239,8 @@ namespace handlers
                 nullptr, 
                 training.empty() ? nullptr : Keyboards::navigation_kb(
                     std::move(training.at(1)),
-                    std::move(training.at(2))
+                    std::move(training.at(2)),
+                    std::move(data.at(1))
                 ),
                 "HTML"
             );

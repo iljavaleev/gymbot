@@ -10,7 +10,9 @@ using namespace TgBot;
 
 namespace Keyboards
 {
-    InlineKeyboardMarkup::Ptr navigation_kb(std::string&& prev, std::string&& next);   
+    InlineKeyboardMarkup::Ptr choose_program_kb(); 
+    InlineKeyboardMarkup::Ptr navigation_kb(
+        std::string&& prev, std::string&& next, std::string&& program);   
 } 
 
 #endif

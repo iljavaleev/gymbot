@@ -43,7 +43,7 @@ std::vector<BotCommand::Ptr> create_commands()
 
     BotCommand::Ptr start_command{new BotCommand};
     start_command->command = "start";
-    start_command->description = "запуск бота";
+    start_command->description = "запуск бота/выбор программы";
     commands.push_back(start_command);
 
     BotCommand::Ptr cancel_command{new BotCommand};

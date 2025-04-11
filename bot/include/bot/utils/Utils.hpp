@@ -10,10 +10,12 @@
 
 using namespace TgBot;
 
+
 std::string parse_date(const std::string&);
 std::vector<BotCommand::Ptr> create_commands();
 
 inline const std::shared_ptr<spdlog::logger> logger = 
-    spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "../logs/logs.txt");
+    spdlog::basic_logger_mt<spdlog::async_factory>(
+        "async_file_logger", "../logs/logs.txt");
 
 #endif

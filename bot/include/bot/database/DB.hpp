@@ -29,7 +29,7 @@ public:
             
         return *instance;
     }
-    std::vector<std::string> get(const std::string&);
+    std::vector<std::string> get(const std::string&, const std::string&);
     DBConnection(const DBConnection&) = delete;
     DBConnection& operator=(const DBConnection&) = delete;
     
@@ -51,8 +51,11 @@ private:
     std::shared_ptr<pqxx::connection> connection{nullptr};
     
     const static std::string uri; 
-
-    static constexpr char get_query[] = "select exercise, reps, TO_CHAR(date::DATE,'dd.mm.yyyy'), prev, next, date from workout where date=";
+    static constexpr char get_women_query[] = "select exercise, reps, TO_CHAR"
+    "(date::DATE,'dd.mm.yyyy'), prev, next, date from womens_workout" 
+    " where date=";
+    static constexpr char get_men_query[] = "select exercise, reps, TO_CHAR"
+    "(date::DATE,'dd.mm.yyyy'), prev, next, date from mens_workout where date=";
 };
 
 inline DBConnection* DBConnection::instance = nullptr;

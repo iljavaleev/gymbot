@@ -12,10 +12,16 @@ using namespace TgBot;
 
 extern const std::shared_ptr<spdlog::logger> logger;
 
-std::vector<std::string> DBConnection::get(const std::string& date)
+std::vector<std::string> DBConnection::get(const std::string& date, 
+    const std::string& program)
 {
     logger->set_level(spdlog::level::err);
-    std::string query = get_query + ("'" + date + "'");
+    std::string query;
+    if (program == "M")
+        query = get_men_query;
+    else
+        query = get_women_query;
+    query += ("'" + date + "'");
     spdlog::info(query);
     pqxx::result res;
     try
@@ -38,16 +44,20 @@ std::vector<std::string> DBConnection::get(const std::string& date)
     std::stringstream result;
 
     int count = 1;
-    result << "<u><b>" << res.begin().at(2).as<std::string>() << "</b></u>" << "\n";
+    result << "<u><b>" << res.begin().at(2).as<std::string>() 
+    << "</b></u>" << "\n";
     for (auto i{res.begin()}; i != res.end(); ++i)
     {
         result << count++ << ". " << i.at(0).as<std::string>() << '\t' << 
-            (i.at(1).is_null() ? "" : ("<b>/" + i.at(1).as<std::string>() + "</b>")) << '\n';
+            (i.at(1).is_null() ? "" : (
+                "<b>/" + i.at(1).as<std::string>() + "</b>")) << '\n';
     }
     return {
         result.str(), 
-        res.begin().at(3).is_null() ? res.begin().at(5).as<std::string>() : res.begin().at(3).as<std::string>(),
-        res.begin().at(4).is_null() ? res.begin().at(5).as<std::string>() : res.begin().at(4).as<std::string>()
+        res.begin().at(3).is_null() ? res.begin().at(5).as<std::string>() : 
+            res.begin().at(3).as<std::string>(),
+        res.begin().at(4).is_null() ? res.begin().at(5).as<std::string>() : 
+            res.begin().at(4).as<std::string>()
     };
 }   
 void DBConnection::reconnect()

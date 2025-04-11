@@ -12,4 +12,28 @@ struct Storage
     void set(K key, V value);
 };
 
+template<typename K, typename V> 
+std::optional<V> Storage<K, V>::get(K key)
+{
+    if (auto res = storage.find(key); res != storage.end())
+        return storage.at(key);
+    return std::nullopt;
+}
+
+
+template<typename K, typename V> 
+void Storage<K, V>::set(K key, V value)
+{
+    if (auto res = storage.find(key); res != storage.end())
+    {
+        storage[key] = value;
+        return;
+    }
+        
+    if (storage.size() > 100)
+        storage.clear();
+
+    storage.insert({key, value});
+}
+
 #endif

@@ -16,5 +16,6 @@ data/
 .env
 todo.txt
 /setup/export.sh
-/setup/table.csv
+/setup/mens_table.csv
+/setup/womens_table.csv
 /logs

@@ -19,3 +19,4 @@ todo.txt
 /setup/mens_table.csv
 /setup/womens_table.csv
 /logs
+/setup/*.csv

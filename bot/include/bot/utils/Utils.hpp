@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <tgbot/tgbot.h>
+#include <string_view>
+
 #include "spdlog/sinks/basic_file_sink.h"
 #include <spdlog/spdlog.h>
 #include "spdlog/async.h"
@@ -11,7 +13,7 @@
 using namespace TgBot;
 
 
-std::string parse_date(const std::string&);
+bool is_valid_date(const std::string& date, std::string_view);
 std::vector<BotCommand::Ptr> create_commands();
 
 inline const std::shared_ptr<spdlog::logger> logger = 

@@ -51,11 +51,10 @@ private:
     std::shared_ptr<pqxx::connection> connection{nullptr};
     
     const static std::string uri; 
-    static constexpr char get_women_query[] = "select exercise, reps, TO_CHAR"
-    "(date::DATE,'dd.mm.yyyy'), prev, next, date from womens_workout" 
-    " where date=";
-    static constexpr char get_men_query[] = "select exercise, reps, TO_CHAR"
-    "(date::DATE,'dd.mm.yyyy'), prev, next, date from mens_workout where date=";
+    static constexpr char end_query[] = "select exercise, reps,\
+    work_id, week_id, superset from endurance where work_id=";
+    static constexpr char str_query[] = "select exercise, reps,\
+    work_id, week_id from strenght where work_id=";
 };
 
 inline DBConnection* DBConnection::instance = nullptr;

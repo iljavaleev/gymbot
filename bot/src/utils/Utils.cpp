@@ -10,31 +10,24 @@
 using namespace TgBot;
 
 
-std::string parse_date(const std::string& date)
+bool is_valid_date(const std::string& date, std::string_view program)
 {
-    std::regex self_regex("^[0-9.]{8}$",
-        std::regex_constants::ECMAScript | std::regex_constants::icase);
-    if (!std::regex_search(date, self_regex))
-        return "";
-    std::vector<std::string> dmy;
-    std::stringstream ss (date);
-    std::string item;
-
-    while (getline (ss, item, '.')) 
+    
+    int int_date = std::stoi(date);
+    try
     {
-        dmy.push_back (item);
+        if (int_date < 1)
+            return 0;
+        if ((program == "S") && (int_date>263))
+            return 0;
+        if ((program == "E") && (int_date>52))
+            return 0;
     }
-
-    if (std::stoi(dmy.at(0)) < 1 && std::stoi(dmy.at(0)) > 31)
-        return "";
-    if (std::stoi(dmy.at(1)) < 1 && std::stoi(dmy.at(1)) > 12)
-        return "";
-    if (std::stoi(dmy.at(2)) < 20 && std::stoi(dmy.at(2)) > 40)
-        return "";
-
-    std::stringstream res;
-    res  << "20" << dmy.at(2) << "-" << dmy.at(1) << "-" << dmy.at(0);
-    return res.str();
+    catch(const std::exception& e)
+    {
+        return 0;
+    }
+    return 1;
 }
 
 std::vector<BotCommand::Ptr> create_commands()

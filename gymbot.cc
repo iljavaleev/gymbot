@@ -13,6 +13,7 @@ extern const std::shared_ptr<spdlog::logger> logger;
 int main()
 {
     spdlog::set_default_logger(logger);
+    logger->set_level(spdlog::level::err);
     spdlog::flush_on(spdlog::level::err);
 
     std::string bot_token = std::string(std::getenv("BOT_TOKEN"));

@@ -39,12 +39,12 @@ namespace Keyboards
 
         InlineKeyboardButton::Ptr next_btn(new InlineKeyboardButton);
         next_btn->text = "Коричневый";
-        next_btn->callbackData = "M";
+        next_btn->callbackData = "S";
         row.push_back(next_btn);
 
         InlineKeyboardButton::Ptr prev_btn(new InlineKeyboardButton);
         prev_btn->text = "Синий";
-        prev_btn->callbackData = "W";
+        prev_btn->callbackData = "E";
         row.push_back(prev_btn);
         keyboard->inlineKeyboard.push_back(row); 
 

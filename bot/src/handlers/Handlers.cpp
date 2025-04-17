@@ -8,8 +8,10 @@
 #include <string>                                                                     
 #include <vector> 
 #include <future> 
-#include <exception>      
-                            
+#include <exception>       
+#include <string_view>
+#include <regex>
+
 #include "spdlog/spdlog.h"
 
 using namespace TgBot;
@@ -20,7 +22,6 @@ namespace command_handlers
 {
     Message::Ptr start_command::operator()(const Message::Ptr& message)
     {
-        logger->set_level(spdlog::level::err);
         try
         {
             return bot.getApi().sendMessage(
@@ -42,7 +43,6 @@ namespace command_handlers
 
     Message::Ptr help_command::operator()(const Message::Ptr& message)
     {
-        logger->set_level(spdlog::level::err);
         try
         {
             return bot.getApi().sendMessage(
@@ -67,19 +67,17 @@ namespace handlers
 {
     Message::Ptr inform_handler::operator()(const CallbackQuery::Ptr& query)
     {
-        logger->set_level(spdlog::level::err);
-        if (!(query->data == "M" || query->data == "W"))
+        if (!(query->data == "E" || query->data == "S"))
         {
             return Message::Ptr(nullptr);
         }
             
         try
         {
-            storage->set(query->message->chat->id, 
-                std::move(query->data));
+            storage->set(query->message->chat->id, std::move(query->data));
             return bot.getApi().sendMessage(
                 query->message->chat->id, 
-                std::string(choose_date_string),
+                std::string(choose_work_string),
                 nullptr,
                 nullptr,
                 nullptr,
@@ -96,14 +94,50 @@ namespace handlers
 
     Message::Ptr get_training::operator()(const Message::Ptr& message)
     {
-        logger->set_level(spdlog::level::err);
-        if (StringTools::startsWith(message->text, "/start") || 
-            StringTools::startsWith(message->text, "/help")) 
-        {
+        if ((message->text == "/start" || message->text == "/help"))
             return Message::Ptr(nullptr);
+        if (!std::regex_search(message->text, 
+            std::regex("^[0-9]+$", std::regex_constants::ECMAScript))) 
+        {
+            try
+            {
+                return bot.getApi().sendMessage(
+                    message->chat->id, 
+                    std::string(error_string),
+                    nullptr,
+                    nullptr,
+                    nullptr,
+                    "HTML");
+            }
+            catch(const std::exception& e)
+            {
+                logger->error("error: {}", e.what());
+                return Message::Ptr(nullptr);
+            }  
         }
-        std::string date = parse_date(message->text);
-        if (date.empty())
+        
+        auto program = storage->get(message->chat->id);
+        if (!program)
+        {
+            try
+            {
+                return bot.getApi().sendMessage(
+                    message->chat->id, 
+                    std::string(choose_program_string),
+                    nullptr,
+                    nullptr,
+                    Keyboards::choose_program_kb(),
+                    "HTML");
+            }
+            catch(const std::exception& e)
+            {
+                logger->error("error: {}", e.what());
+                return Message::Ptr(nullptr);
+            }
+            
+        }
+        
+        if (!is_valid_date(message->text, *program))
         {
             try
             {
@@ -123,23 +157,12 @@ namespace handlers
         }
         
         std::vector<std::string> training;
-        auto program = storage->get(message->chat->id);
         try
         {
-            if (!program)
-            {
-                return bot.getApi().sendMessage(
-                    message->chat->id, 
-                    std::string(choose_program_string),
-                    nullptr,
-                    nullptr,
-                    Keyboards::choose_program_kb(),
-                    "HTML");
-            }
             auto& pg_connection = DBConnection::getInstance();
             auto fut_training = std::async(std::launch::async, 
                 &DBConnection::get, std::ref(pg_connection), 
-                std::ref(date), 
+                std::ref(message->text), 
                 *program);
             training = fut_training.get();
         }
@@ -167,7 +190,7 @@ namespace handlers
         try
         {
             std::string mess = training.empty() ? \
-            std::string(error_date_string) : training.at(0);
+            std::string(error_work_string) : training.at(0);
             
             return bot.getApi().sendMessage(message->chat->id, 
                 std::move(mess), 
@@ -196,7 +219,7 @@ namespace handlers
         {
             return Message::Ptr(nullptr);
         }
-        logger->set_level(spdlog::level::err);
+        
         std::vector<std::string> training;
         try
         {
@@ -231,7 +254,7 @@ namespace handlers
         try
         {
             std::string mess = training.empty() ? \
-            std::string(error_date_string) : training.at(0);
+            std::string(error_work_string) : training.at(0);
             
             return bot.getApi().sendMessage(query->message->chat->id, 
                 std::move(mess), 
@@ -257,11 +280,9 @@ namespace handlers
 
 void startWebhook(TgBot::Bot& bot, std::string& webhookUrl)
 {
-    logger->set_level(spdlog::level::err);
-    try {
-        spdlog::info("Bot username: {}", bot.getApi().getMe()->username);
+    try 
+    {
         TgWebhookTcpServer webhookServer(8080, bot);
-        spdlog::info("Server starting");
         bot.getApi().setWebhook(webhookUrl);
         webhookServer.start();
     } 

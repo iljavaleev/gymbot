@@ -3,8 +3,6 @@
 
 #include <tgbot/tgbot.h>
 #include <vector>
-#include <utility>
-#include <unordered_set>
 
 
 using namespace TgBot;

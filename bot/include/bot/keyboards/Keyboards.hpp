@@ -12,7 +12,7 @@ namespace Keyboards
 {
     InlineKeyboardMarkup::Ptr choose_program_kb(); 
     InlineKeyboardMarkup::Ptr navigation_kb(
-        std::string&& prev, std::string&& next, std::string&& program);   
+        std::string&&, std::string&&, unsigned char &&);   
 } 
 
 #endif

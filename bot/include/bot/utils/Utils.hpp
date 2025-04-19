@@ -13,7 +13,7 @@
 using namespace TgBot;
 
 
-bool is_valid_date(const std::string& date, std::string_view);
+bool is_valid_date(const std::string&, unsigned char program);
 std::vector<BotCommand::Ptr> create_commands();
 
 inline const std::shared_ptr<spdlog::logger> logger = 

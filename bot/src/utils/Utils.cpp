@@ -7,10 +7,11 @@
 #include "tgbot/Api.h"                       
 #include "tgbot/Bot.h"
 
+
 using namespace TgBot;
 
 
-bool is_valid_date(const std::string& date, std::string_view program)
+bool is_valid_date(const std::string& date, unsigned char program)
 {
     
     int int_date = std::stoi(date);
@@ -18,9 +19,9 @@ bool is_valid_date(const std::string& date, std::string_view program)
     {
         if (int_date < 1)
             return 0;
-        if ((program == "S") && (int_date>263))
+        if ((program == '0') && (int_date>263))
             return 0;
-        if ((program == "E") && (int_date>52))
+        if ((program == '1') && (int_date>52))
             return 0;
     }
     catch(const std::exception& e)

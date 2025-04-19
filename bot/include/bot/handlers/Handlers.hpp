@@ -12,7 +12,7 @@
 
 using namespace TgBot;
 
-inline auto storage = std::make_shared<Storage<long, std::string>>();
+inline auto storage = std::make_shared<Storage<long, unsigned char>>();
 
 namespace command_handlers
 {

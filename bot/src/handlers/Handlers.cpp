@@ -67,14 +67,14 @@ namespace handlers
 {
     Message::Ptr inform_handler::operator()(const CallbackQuery::Ptr& query)
     {
-        if (!(query->data == "E" || query->data == "S"))
+        if (!(query->data == "0" || query->data == "1"))
         {
             return Message::Ptr(nullptr);
         }
             
         try
         {
-            storage->set(query->message->chat->id, std::move(query->data));
+            storage->set(query->message->chat->id, *query->data.c_str());
             return bot.getApi().sendMessage(
                 query->message->chat->id, 
                 std::string(choose_work_string),
@@ -161,9 +161,9 @@ namespace handlers
         {
             auto& pg_connection = DBConnection::getInstance();
             auto fut_training = std::async(std::launch::async, 
-                &DBConnection::get, std::ref(pg_connection), 
+                &DBConnection::get<unsigned char>, std::ref(pg_connection), 
                 std::ref(message->text), 
-                *program);
+                program.value());
             training = fut_training.get();
         }
         catch(const std::exception& e)
@@ -225,8 +225,8 @@ namespace handlers
         {
             auto& pg_connection = DBConnection::getInstance();
             auto fut_training = std::async(std::launch::async, 
-                &DBConnection::get, std::ref(pg_connection), 
-                data.at(0), data.at(1));
+                &DBConnection::get<unsigned char>, std::ref(pg_connection), 
+                data.at(0), *data.at(1).c_str());
             training = fut_training.get();
         }
         catch(const std::exception& e)
@@ -263,7 +263,7 @@ namespace handlers
                 training.empty() ? nullptr : Keyboards::navigation_kb(
                     std::move(training.at(1)),
                     std::move(training.at(2)),
-                    std::move(data.at(1))
+                    *data.at(1).c_str()
                 ),
                 "HTML"
             );

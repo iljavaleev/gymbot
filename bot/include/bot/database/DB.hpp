@@ -8,9 +8,7 @@
 #include <memory>
 
 #include <tgbot/tgbot.h>
-#include "spdlog/spdlog.h"
 
-extern const std::shared_ptr<spdlog::logger> logger;
 
 class DBConnection 
 {
@@ -19,14 +17,7 @@ public:
     {
         if (!instance)
         {
-            try
-            {
-                instance = new DBConnection();
-            }
-            catch(const std::exception& e)
-            {
-                throw;
-            }
+           instance = new DBConnection();
         }
             
         return *instance;
@@ -40,22 +31,17 @@ public:
         else
             query = end_query;
         query += id;
-
         pqxx::result res;
-        try
-        {
-            if (!connection->is_open())
-                reconnect();
+      
+        if (!connection->is_open())
+            reconnect();
 
-            pqxx::nontransaction non_trans(*connection);
-            res = non_trans.exec(query);
-        }   
-        catch(const std::exception& e)
-        {
-            logger->error("error: {}", e.what());
-        }
+        pqxx::nontransaction non_trans(*connection);
+        res = non_trans.exec(query);
 
-        if (res.empty())  return {};
+
+        if (res.empty())
+            throw std::runtime_error("empty result: " + query);
 
         std::stringstream result;
 
@@ -80,6 +66,7 @@ public:
         }
 
         bool start = (work_id == 1);
+        
         bool end = ((work_id==263) && !endu_program) || 
             ((work_id==52) && endu_program);
         
@@ -114,6 +101,8 @@ private:
     work_id, week_id, superset from endurance where work_id=";
     static constexpr char str_query[] = "select exercise, reps,\
     work_id, week_id from strenght where work_id=";
+    
+    
 };
 
 inline DBConnection* DBConnection::instance = nullptr;

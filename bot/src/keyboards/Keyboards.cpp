@@ -13,21 +13,19 @@ using namespace TgBot;
 namespace Keyboards
 {
     InlineKeyboardMarkup::Ptr navigation_kb(std::string&& prev, 
-        std::string&& next, unsigned char&& program) 
+        std::string&& next, char&& program) 
     { 
         InlineKeyboardMarkup::Ptr keyboard(new InlineKeyboardMarkup);
         std::vector<InlineKeyboardButton::Ptr> row;
-
         InlineKeyboardButton::Ptr prev_btn(new InlineKeyboardButton);
         prev_btn->text = "Предыдущая";
-        prev_btn->callbackData = std::move(prev) + "," + std::to_string(program);
+        prev_btn->callbackData = std::move(prev) + ',' + program;
         row.push_back(prev_btn);
 
         InlineKeyboardButton::Ptr next_btn(new InlineKeyboardButton);
         next_btn->text = "Следующая";
-        next_btn->callbackData = std::move(next) + "," + std::to_string(program);
+        next_btn->callbackData = std::move(next) + ',' + program;
         row.push_back(next_btn);
-
         keyboard->inlineKeyboard.push_back(row); 
 
         return keyboard;

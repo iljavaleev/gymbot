@@ -11,7 +11,7 @@
 using namespace TgBot;
 
 
-bool is_valid_date(const std::string& date, unsigned char program)
+bool is_valid_date(const std::string& date, char program)
 {
     
     int int_date = std::stoi(date);

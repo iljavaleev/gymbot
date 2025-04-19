@@ -1,6 +1,5 @@
 #include <stdexcept>
 
-
 #include "bot/database/DB.hpp"
 
 

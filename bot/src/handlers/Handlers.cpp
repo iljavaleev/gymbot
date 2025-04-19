@@ -15,7 +15,6 @@
 #include "spdlog/spdlog.h"
 
 using namespace TgBot;
-extern const std::shared_ptr<spdlog::logger> logger;
 
 
 namespace command_handlers
@@ -161,7 +160,7 @@ namespace handlers
         {
             auto& pg_connection = DBConnection::getInstance();
             auto fut_training = std::async(std::launch::async, 
-                &DBConnection::get<unsigned char>, std::ref(pg_connection), 
+                &DBConnection::get<char>, std::ref(pg_connection), 
                 std::ref(message->text), 
                 program.value());
             training = fut_training.get();
@@ -225,7 +224,7 @@ namespace handlers
         {
             auto& pg_connection = DBConnection::getInstance();
             auto fut_training = std::async(std::launch::async, 
-                &DBConnection::get<unsigned char>, std::ref(pg_connection), 
+                &DBConnection::get<char>, std::ref(pg_connection), 
                 data.at(0), *data.at(1).c_str());
             training = fut_training.get();
         }
@@ -256,6 +255,7 @@ namespace handlers
             std::string mess = training.empty() ? \
             std::string(error_work_string) : training.at(0);
             
+            char program = *data.at(1).c_str();
             return bot.getApi().sendMessage(query->message->chat->id, 
                 std::move(mess), 
                 nullptr, 
@@ -263,7 +263,7 @@ namespace handlers
                 training.empty() ? nullptr : Keyboards::navigation_kb(
                     std::move(training.at(1)),
                     std::move(training.at(2)),
-                    *data.at(1).c_str()
+                    std::move(program)
                 ),
                 "HTML"
             );
@@ -277,17 +277,3 @@ namespace handlers
     }
 
 };
-
-void startWebhook(TgBot::Bot& bot, std::string& webhookUrl)
-{
-    try 
-    {
-        TgWebhookTcpServer webhookServer(8080, bot);
-        bot.getApi().setWebhook(webhookUrl);
-        webhookServer.start();
-    } 
-    catch (std::exception& e) 
-    {
-        logger->error("error: {}", e.what());
-    }
-}
